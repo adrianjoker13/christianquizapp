@@ -54,8 +54,18 @@ export const logout = async () => {
   return signOut(auth);
 };
 
-// Function to update XP and Streaks
-export const updateXPAndStreak = async (xpEarned: number) => {
+// Function to determine badges based on XP
+const getBadgesForXP = (xp: number): string[] => {
+  let badges = [];
+  if (xp >= 100) badges.push("Bronze Achiever 🥉");
+  if (xp >= 250) badges.push("Silver Champion 🥈");
+  if (xp >= 500) badges.push("Gold Master 🥇");
+  if (xp >= 1000) badges.push("Legendary Warrior 🔥");
+  return badges;
+};
+
+// Function to update XP, streak, and badges
+export const updateXPStreakAndBadges = async (xpEarned: number) => {
   if (!auth.currentUser) return;
 
   const userRef = doc(db, "users", auth.currentUser.uid);
@@ -63,7 +73,7 @@ export const updateXPAndStreak = async (xpEarned: number) => {
 
   if (userSnap.exists()) {
     const userData = userSnap.data();
-    const today = new Date().toISOString().split("T")[0]; // Get today's date (YYYY-MM-DD)
+    const today = new Date().toISOString().split("T")[0];
     const lastLogin = userData.lastLogin || today;
     let newStreak = userData.streak || 0;
 
@@ -80,10 +90,15 @@ export const updateXPAndStreak = async (xpEarned: number) => {
       }
     }
 
+    // Calculate new XP and badges
+    const newXP = (userData.xp || 0) + xpEarned;
+    const newBadges = getBadgesForXP(newXP);
+
     await updateDoc(userRef, {
-      xp: (userData.xp || 0) + xpEarned,
+      xp: newXP,
       streak: newStreak,
       lastLogin: today,
+      achievements: newBadges,
     });
   }
 };
@@ -102,7 +117,6 @@ export const fetchLeaderboard = async (): Promise<{ id: string; email: string; x
 
   return leaderboard;
 };
-
 
 // Export Firebase services
 export { app, db, auth, storage };
