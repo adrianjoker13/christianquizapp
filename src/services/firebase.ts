@@ -89,18 +89,20 @@ export const updateXPAndStreak = async (xpEarned: number) => {
 };
 
 // Function to fetch leaderboard data
-export const fetchLeaderboard = async () => {
+export const fetchLeaderboard = async (): Promise<{ id: string; email: string; xp: number }[]> => {
   const usersRef = collection(db, "users");
   const q = query(usersRef, orderBy("xp", "desc"));
   const snapshot = await getDocs(q);
 
-  let leaderboard = [];
+  let leaderboard: { id: string; email: string; xp: number }[] = [];
   snapshot.forEach((doc) => {
-    leaderboard.push({ id: doc.id, ...doc.data() });
+    const data = doc.data();
+    leaderboard.push({ id: doc.id, email: data.email, xp: data.xp });
   });
 
   return leaderboard;
 };
+
 
 // Export Firebase services
 export { app, db, auth, storage };
