@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import HomeScreen from "../screens/HomeScreen";
 import QuizScreen from "../screens/QuizScreen";
+import QuizSummaryScreen from "../screens/QuizSummaryScreen";
 import AuthScreen from "../screens/AuthScreen";
 import LeaderboardScreen from "../screens/LeaderboardScreen";
 import { useAppContext } from "../context/AppContext";
@@ -19,6 +20,7 @@ const MainNavigation = () => {
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Quiz" component={QuizScreen} />
+            <Stack.Screen name="QuizSummary" component={QuizSummaryScreen} />
             <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
           </>
         ) : (

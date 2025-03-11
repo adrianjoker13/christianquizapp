@@ -27,8 +27,8 @@ const QuizScreen = ({ navigation }: any) => {
 
   const playSound = async () => {
     try {
-      await sound.current.unloadAsync(); // Unload any previous sound
-      await sound.current.loadAsync(require("../assets/success.mp3")); // Ensure you have this file
+      await sound.current.unloadAsync();
+      await sound.current.loadAsync(require("../assets/success.mp3"));
       await sound.current.playAsync();
     } catch (error) {
       console.error("Error playing sound:", error);
@@ -51,20 +51,22 @@ const QuizScreen = ({ navigation }: any) => {
       await updateXPStreakAndBadges(10);
       setQuizCompleted(true);
 
-      Alert.alert("Great job!", "You earned 10 XP!");
-
-      // Smooth XP increase
-      setUser((prevUser: any) => ({
-        ...prevUser,
-        xp: prevUser.xp + 10,
-      }));
-
       // Play sound and trigger haptic feedback
       playSound();
       Haptics.trigger("impactMedium", { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
 
+      // Smooth XP increase
+      const newXP = 10;
+      const updatedUser = { ...user, xp: user.xp + newXP };
+      setUser(updatedUser);
+
       setTimeout(() => {
-        navigation.navigate("Home");
+        navigation.navigate("QuizSummary", {
+          score: questions.length, // Simulated full score
+          totalQuestions: questions.length,
+          newXP: newXP,
+          newBadges: updatedUser.achievements || [],
+        });
       }, 1500);
     } catch (error) {
       Alert.alert("Error", "Could not update XP.");
