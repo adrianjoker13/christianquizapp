@@ -1,23 +1,19 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, Button } from "react-native";
+import { useAppContext } from "../context/AppContext";
 
-export default function HomeScreen({ navigation }: any) {
+const HomeScreen = ({ navigation }: any) => {
+  const { user } = useAppContext();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome</Text>
-      <TouchableOpacity
-        style={styles.startButton}
-        onPress={() => navigation.navigate('MenuScreen')}
-      >
-        <Text style={styles.buttonText}>Go to Quiz Menu</Text>
-      </TouchableOpacity>
+    <View>
+      <Text>Welcome, {user?.email}!</Text>
+      <Text>🔥 Streak: {user?.streak || 0} days</Text>
+      <Text>⭐ XP: {user?.xp || 0}</Text>
+      <Button title="Start Quiz" onPress={() => navigation.navigate("Quiz")} />
+      <Button title="View Leaderboard" onPress={() => navigation.navigate("Leaderboard")} />
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
-  welcomeText: { fontSize: 32, fontWeight: 'bold', marginBottom: 20 },
-  startButton: { backgroundColor: '#007BFF', padding: 15, borderRadius: 5 },
-  buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
-});
+export default HomeScreen;
