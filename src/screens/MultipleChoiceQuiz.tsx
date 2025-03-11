@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { getDocs, collection } from 'firebase/firestore';
-import { db } from '../firebase/firebase'; // Ensure this is the correct path
+import { db } from '../services/firebase'; // Ensure this is the correct path
 import ProgressBar from '../components/ProgressBar'; // Import the progress bar
 
 export default function MultipleChoiceQuiz({ navigation }: any) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { getDocs, collection } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
+import { db } from '../services/firebase';
 import ProgressBar from '../components/ProgressBar';
 import CustomButton from '../components/CustomButton';
 import AnswerSlot from '../components/AnswerSlot';
