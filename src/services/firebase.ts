@@ -1,6 +1,6 @@
 // firebase.ts
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, orderBy, query } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, orderBy, query, limit } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
@@ -103,10 +103,10 @@ export const updateXPStreakAndBadges = async (xpEarned: number) => {
   }
 };
 
-// Function to fetch leaderboard data
+// Function to fetch leaderboard data (Top 10 users only)
 export const fetchLeaderboard = async (): Promise<{ id: string; email: string; xp: number }[]> => {
   const usersRef = collection(db, "users");
-  const q = query(usersRef, orderBy("xp", "desc"));
+  const q = query(usersRef, orderBy("xp", "desc"), limit(10));
   const snapshot = await getDocs(q);
 
   let leaderboard: { id: string; email: string; xp: number }[] = [];
