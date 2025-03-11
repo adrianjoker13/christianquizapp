@@ -1,25 +1,20 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import HomeScreen from "../screens/HomeScreen";
+import QuizScreen from "../screens/QuizScreen";
 
-import HomeScreen from './screens/HomeScreen';
-import MenuScreen from './screens/MenuScreen';
-import MultipleChoiceQuiz from './screens/MultipleChoiceQuiz';
-import FillInTheBlankQuiz from './screens/FillInTheBlankQuiz';
-import BibleTimelineQuiz from './screens/BibleTimelineQuiz';
+const Stack = createStackNavigator();
 
-const Stack = createNativeStackNavigator();
-
-export default function AppNavigator() {
+const MainNavigation = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="HomeScreen">
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
-        <Stack.Screen name="MenuScreen" component={MenuScreen} />
-        <Stack.Screen name="MultipleChoiceQuiz" component={MultipleChoiceQuiz} />
-        <Stack.Screen name="FillInTheBlankQuiz" component={FillInTheBlankQuiz} />
-        <Stack.Screen name="BibleTimelineQuiz" component={BibleTimelineQuiz} />
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Quiz" component={QuizScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
+
+export default MainNavigation;
