@@ -103,10 +103,10 @@ export const updateXPStreakAndBadges = async (xpEarned: number) => {
   }
 };
 
-// Function to fetch leaderboard data (Top 10 users only)
+// Function to fetch leaderboard data from Firestore leaderboard collection
 export const fetchLeaderboard = async (): Promise<{ id: string; email: string; xp: number }[]> => {
-  const usersRef = collection(db, "users");
-  const q = query(usersRef, orderBy("xp", "desc"), limit(10));
+  const leaderboardRef = collection(db, "leaderboard");
+  const q = query(leaderboardRef, orderBy("xp", "desc"), limit(10));
   const snapshot = await getDocs(q);
 
   let leaderboard: { id: string; email: string; xp: number }[] = [];
