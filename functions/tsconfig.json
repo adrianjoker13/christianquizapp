@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "outDir": "lib", 
+    "rootDir": "src", 
+    "strict": true, 
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "es6",
     "module": "commonjs",
+    "allowJs": true,
     "noImplicitAny": false,
-    "outDir": "lib",
-    "rootDir": "src",
-    "strict": true,
-    "target": "es6"
+    "resolveJsonModule": true
   },
-  "extends": "expo/tsconfig.base"
+  "include": ["src"]
 }
