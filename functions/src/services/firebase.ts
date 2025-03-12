@@ -4,6 +4,8 @@ import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, orde
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import messaging from "@react-native-firebase/messaging";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVEEahctBCvnXJZuODUxyR3ej7WpUOmQ0",
@@ -38,7 +40,7 @@ const saveUserToFirestore = async (user: any) => {
   }
 };
 
-// Function to log quiz completion
+// Function to log quiz completion event
 export const logQuizCompletion = (quizId: string, score: number) => {
   logEvent(analytics, "quiz_completed", {
     quiz_id: quizId,
@@ -47,12 +49,24 @@ export const logQuizCompletion = (quizId: string, score: number) => {
   });
 };
 
-// Function to log XP earned
+// Function to log XP earned event
 export const logXPEarned = (xpAmount: number) => {
   logEvent(analytics, "xp_earned", {
     xp_amount: xpAmount,
     timestamp: new Date().toISOString(),
   });
+};
+
+// Function to request and store FCM token
+export const updateFCMToken = async (userId: string) => {
+  try {
+    const token = await messaging().getToken();
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, { fcmToken: token });
+    console.log("FCM token updated:", token);
+  } catch (error) {
+    console.error("Error updating FCM token:", error);
+  }
 };
 
 // Signup Function
@@ -75,7 +89,7 @@ export const logout = async () => {
 
 // Function to determine badges based on XP
 const getBadgesForXP = (xp: number): string[] => {
-  let badges: string[] = [];  // ✅ Explicitly define as string[]
+  let badges: string[] = [];
   if (xp >= 100) badges.push("Bronze Achiever 🥉");
   if (xp >= 250) badges.push("Silver Champion 🥈");
   if (xp >= 500) badges.push("Gold Master 🥇");
