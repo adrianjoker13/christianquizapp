@@ -138,10 +138,14 @@ export const updateXPStreakAndBadges = async (xpEarned: number) => {
 };
 
 // Function to fetch leaderboard data with filtering
-export const fetchLeaderboard = async (filter: "daily" | "weekly" | "all-time") => {
+export const fetchLeaderboard = async (
+  filter: "daily" | "weekly" | "all-time",
+  searchQuery: string = "",
+  userId: string | null = null
+) => {
   try {
     let leaderboardQuery;
-    
+
     if (filter === "daily") {
       const today = new Date().toISOString().split("T")[0];
       leaderboardQuery = query(
@@ -164,21 +168,60 @@ export const fetchLeaderboard = async (filter: "daily" | "weekly" | "all-time") 
     }
 
     const snapshot = await getDocs(leaderboardQuery);
-    return snapshot.docs.map((doc) => {
+    let leaderboard = snapshot.docs.map((doc, index) => {
       const data = doc.data() as { email?: string; xp?: number };
       return {
         id: doc.id,
         email: data.email || "Unknown",
         xp: data.xp || 0,
+        rank: index + 1,
       };
     });
+
+    // ✅ Apply search filter
+    if (searchQuery) {
+      leaderboard = leaderboard.filter(user => user.email.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    // ✅ Get Current User's Rank
+    let currentUserRank = null;
+    if (userId) {
+      const allUsersQuery = query(collection(db, "users"), orderBy("xp", "desc"));
+      const allUsersSnapshot = await getDocs(allUsersQuery);
+      const allUsers = allUsersSnapshot.docs.map((doc, index) => ({
+        id: doc.id,
+        rank: index + 1,
+      }));
+
+      const currentUser = allUsers.find(user => user.id === userId);
+      if (currentUser) {
+        currentUserRank = currentUser.rank;
+      }
+    }
+
+    return { leaderboard, currentUserRank };
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
-    return [];
+    return { leaderboard: [], currentUserRank: null };
   }
 };
 
-
+//Create social post
+export const createSocialPost = async (userId: string, type: "xp" | "streak" | "quiz", details: string) => {
+  try {
+    const postRef = doc(collection(db, "posts"));
+    await setDoc(postRef, {
+      userId,
+      content: details,
+      type,
+      timestamp: new Date().toISOString(),
+      reactions: {},
+      comments: [],
+    });
+  } catch (error) {
+    console.error("Error creating social post:", error);
+  }
+};
 
 // Export Firebase services
 export { db, auth };
