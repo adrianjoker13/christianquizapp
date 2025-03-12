@@ -12,6 +12,12 @@
     "noImplicitAny": false,
     "resolveJsonModule": true
   },
-  "include": ["functions/src/**/*.ts"],
-  "exclude": ["node_modules", "lib"]
+  "include": [
+    "functions/src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "lib"
+  ],
+  "extends": "expo/tsconfig.base"
 }
