@@ -2,7 +2,10 @@ import React, { useEffect } from "react";
 import { View, Text, Alert } from "react-native";
 import messaging from "@react-native-firebase/messaging";
 import notifee from "@notifee/react-native";
-import { updateFCMToken } from "./services/firebase"; // Ensure correct import
+import { updateFCMToken } from "./functions/src/services/firebase"; // Ensure correct import
+import { auth, db } from "./functions/src/services/firebase";
+
+
 
 const App = () => {
   useEffect(() => {

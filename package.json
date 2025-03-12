@@ -1,7 +1,7 @@
 {
   "name": "christianquizapp",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -10,16 +10,17 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@notifee/react-native": "^9.1.8",
     "@react-native-firebase/app": "^21.12.0",
     "@react-native-firebase/messaging": "^21.12.0",
     "expo": "^52.0.38",
     "firebase": "^11.4.0",
-    "react": "^19.0.0",
-    "react-native": "0.76.7"
+    "react": "^18.3.1",
+    "react-native": "^0.76.7"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
-    "@types/react": "^19.0.10",
+    "@types/react": "^18.3.12",
     "@types/react-native": "^0.72.3",
     "eslint": "^9.22.0",
     "typescript": "^5.8.2"

@@ -1,4 +1,17 @@
 {
-  "compilerOptions": {},
-  "extends": "expo/tsconfig.base"
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "./",
+    "strict": false,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "es6",
+    "module": "commonjs",
+    "allowJs": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true
+  },
+  "include": ["functions/src/**/*.ts"],
+  "exclude": ["node_modules", "lib"]
 }

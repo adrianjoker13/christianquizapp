@@ -5,7 +5,9 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getStorage } from "firebase/storage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import messaging from "@react-native-firebase/messaging";
-
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVEEahctBCvnXJZuODUxyR3ej7WpUOmQ0",
@@ -152,4 +154,4 @@ export const fetchLeaderboard = async (): Promise<{ id: string; email: string; x
 };
 
 // Export Firebase services
-export { app, db, auth, storage, analytics };
+export { db, auth };
