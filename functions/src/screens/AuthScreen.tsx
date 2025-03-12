@@ -1,44 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
-import { signUp, login, db } from "../services/firebase";
-import { useAppContext } from "../context/AppContext";
-import { doc, getDoc } from "firebase/firestore";
+import { auth } from "../services/firebase";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
-const AuthScreen = ({ navigation }: any) => {
-  const { setUser } = useAppContext();
+const AuthScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
 
-  const handleAuth = async () => {
+  // ✅ Function to handle login
+  const handleLogin = async () => {
     try {
-      let userCredential;
-      if (isLogin) {
-        userCredential = await login(email, password);
-      } else {
-        userCredential = await signUp(email, password);
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert("Success", "Logged in successfully!");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  };
 
-      // Fetch user data from Firestore and update context
-      const userRef = doc(db, "users", userCredential.user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        setUser(userSnap.data());
-      }
-
-      navigation.replace("Home"); // Redirect to home screen
-    } catch (error: any) {
+  // ✅ Function to handle signup
+  const handleSignup = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      Alert.alert("Success", "Account created successfully!");
+    } catch (error) {
       Alert.alert("Error", error.message);
     }
   };
 
   return (
-    <View>
-      <Text>{isLogin ? "Login" : "Sign Up"}</Text>
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <Button title={isLogin ? "Login" : "Sign Up"} onPress={handleAuth} />
-      <Button title={isLogin ? "Create an account" : "Already have an account?"} onPress={() => setIsLogin(!isLogin)} />
+    <View style={{ padding: 20 }}>
+      <Text>Email:</Text>
+      <TextInput 
+        value={email} 
+        onChangeText={setEmail} 
+        placeholder="Enter email" 
+        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
+      />
+      <Text>Password:</Text>
+      <TextInput 
+        value={password} 
+        onChangeText={setPassword} 
+        placeholder="Enter password" 
+        secureTextEntry
+        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
+      />
+      <Button title="Login" onPress={handleLogin} />
+      <Button title="Sign Up" onPress={handleSignup} />
     </View>
   );
 };
