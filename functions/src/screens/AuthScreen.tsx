@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { setDoc, doc } from "firebase/firestore";
 
 const AuthScreen = () => {
   const [email, setEmail] = useState("");
@@ -17,10 +18,20 @@ const AuthScreen = () => {
     }
   };
 
-  // ✅ Function to handle signup
+  // ✅ Function to handle signup & save user data in Firestore
   const handleSignup = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save user data in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        createdAt: new Date().toISOString(),
+        xp: 0,
+        streak: 0,
+      });
+
       Alert.alert("Success", "Account created successfully!");
     } catch (error) {
       Alert.alert("Error", error.message);

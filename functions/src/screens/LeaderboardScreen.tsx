@@ -1,39 +1,63 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
 import { fetchLeaderboard } from "../services/firebase";
 
+
+
+interface LeaderboardItem {
+  id: string;
+  email: string;
+  xp: number;
+}
+
 const LeaderboardScreen = () => {
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"daily" | "weekly" | "all-time">("all-time");
 
   useEffect(() => {
-    const getLeaderboard = async () => {
-      try {
-        const data = await fetchLeaderboard();
-        setLeaderboard(data);
-      } catch (error) {
-        console.error("Error fetching leaderboard:", error);
-      } finally {
-        setLoading(false);
-      }
+    const loadLeaderboard = async () => {
+      setLoading(true);
+      const data = await fetchLeaderboard(filter);
+      setLeaderboard(data);
+      setLoading(false);
     };
+    loadLeaderboard();
+  }, [filter]);
 
-    getLeaderboard();
-  }, []);
-
-  if (loading) return <ActivityIndicator size="large" color="blue" />;
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
 
   return (
-    <View>
-      <Text>🏆 Leaderboard</Text>
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>🏆 Leaderboard</Text>
+
+      {/* Filter Buttons */}
+      <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 10 }}>
+        {["daily", "weekly", "all-time"].map((type) => (
+          <TouchableOpacity
+            key={type}
+            onPress={() => setFilter(type as "daily" | "weekly" | "all-time")}
+            style={{
+              padding: 10,
+              backgroundColor: filter === type ? "blue" : "gray",
+              borderRadius: 5,
+            }}
+          >
+            <Text style={{ color: "white" }}>{type.toUpperCase()}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Leaderboard List */}
       <FlatList
         data={leaderboard}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <View>
-            <Text>
-              #{index + 1} {item.email} - {item.xp} XP
-            </Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", padding: 10, borderBottomWidth: 1 }}>
+            <Text>{index + 1}. {item.email}</Text>
+            <Text>{item.xp} XP</Text>
           </View>
         )}
       />

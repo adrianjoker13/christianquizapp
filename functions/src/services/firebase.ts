@@ -8,6 +8,7 @@ import messaging from "@react-native-firebase/messaging";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import { where } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVEEahctBCvnXJZuODUxyR3ej7WpUOmQ0",
@@ -112,20 +113,18 @@ export const updateXPStreakAndBadges = async (xpEarned: number) => {
     const lastLogin = userData.lastLogin || today;
     let newStreak = userData.streak || 0;
 
-    // Check if user logged in consecutively
     if (lastLogin !== today) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
       if (lastLogin === yesterdayStr) {
-        newStreak += 1; // Increase streak
+        newStreak += 1;
       } else {
-        newStreak = 1; // Reset streak
+        newStreak = 1;
       }
     }
 
-    // Calculate new XP and badges
     const newXP = (userData.xp || 0) + xpEarned;
     const newBadges = getBadgesForXP(newXP);
 
@@ -138,20 +137,48 @@ export const updateXPStreakAndBadges = async (xpEarned: number) => {
   }
 };
 
-// Function to fetch leaderboard data from Firestore leaderboard collection
-export const fetchLeaderboard = async (): Promise<{ id: string; email: string; xp: number }[]> => {
-  const leaderboardRef = collection(db, "leaderboard");
-  const q = query(leaderboardRef, orderBy("xp", "desc"), limit(10));
-  const snapshot = await getDocs(q);
+// Function to fetch leaderboard data with filtering
+export const fetchLeaderboard = async (filter: "daily" | "weekly" | "all-time") => {
+  try {
+    let leaderboardQuery;
+    
+    if (filter === "daily") {
+      const today = new Date().toISOString().split("T")[0];
+      leaderboardQuery = query(
+        collection(db, "users"),
+        where("lastLogin", "==", today),
+        orderBy("xp", "desc"),
+        limit(10)
+      );
+    } else if (filter === "weekly") {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      leaderboardQuery = query(
+        collection(db, "users"),
+        where("lastLogin", ">=", oneWeekAgo.toISOString().split("T")[0]),
+        orderBy("xp", "desc"),
+        limit(10)
+      );
+    } else {
+      leaderboardQuery = query(collection(db, "users"), orderBy("xp", "desc"), limit(10));
+    }
 
-  let leaderboard: { id: string; email: string; xp: number }[] = [];
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    leaderboard.push({ id: doc.id, email: data.email, xp: data.xp });
-  });
-
-  return leaderboard;
+    const snapshot = await getDocs(leaderboardQuery);
+    return snapshot.docs.map((doc) => {
+      const data = doc.data() as { email?: string; xp?: number };
+      return {
+        id: doc.id,
+        email: data.email || "Unknown",
+        xp: data.xp || 0,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    return [];
+  }
 };
+
+
 
 // Export Firebase services
 export { db, auth };
