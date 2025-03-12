@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "outDir": "lib", 
-    "rootDir": "src", 
-    "strict": true, 
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "target": "es6",
@@ -11,5 +11,6 @@
     "noImplicitAny": false,
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib"]
 }

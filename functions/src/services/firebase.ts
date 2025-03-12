@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, orderBy, query, limit } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVEEahctBCvnXJZuODUxyR3ej7WpUOmQ0",
@@ -19,6 +20,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+const analytics = getAnalytics(app);
 
 // Function to save user data in Firestore
 const saveUserToFirestore = async (user: any) => {
@@ -34,6 +36,23 @@ const saveUserToFirestore = async (user: any) => {
       createdAt: new Date().toISOString(),
     });
   }
+};
+
+// Function to log quiz completion
+export const logQuizCompletion = (quizId: string, score: number) => {
+  logEvent(analytics, "quiz_completed", {
+    quiz_id: quizId,
+    score: score,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+// Function to log XP earned
+export const logXPEarned = (xpAmount: number) => {
+  logEvent(analytics, "xp_earned", {
+    xp_amount: xpAmount,
+    timestamp: new Date().toISOString(),
+  });
 };
 
 // Signup Function
@@ -56,7 +75,7 @@ export const logout = async () => {
 
 // Function to determine badges based on XP
 const getBadgesForXP = (xp: number): string[] => {
-  let badges = [];
+  let badges: string[] = [];  // ✅ Explicitly define as string[]
   if (xp >= 100) badges.push("Bronze Achiever 🥉");
   if (xp >= 250) badges.push("Silver Champion 🥈");
   if (xp >= 500) badges.push("Gold Master 🥇");
@@ -119,4 +138,4 @@ export const fetchLeaderboard = async (): Promise<{ id: string; email: string; x
 };
 
 // Export Firebase services
-export { app, db, auth, storage };
+export { app, db, auth, storage, analytics };

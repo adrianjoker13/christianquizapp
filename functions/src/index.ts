@@ -1,11 +1,11 @@
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
 const db = admin.firestore();
 
 // Cloud Function to update leaderboard daily
-exports.updateLeaderboard = functions.pubsub.schedule("every 24 hours").onRun(async (context: functions.EventContext) => {
+exports.updateLeaderboard = functions.pubsub.onSchedule("every 24 hours", async () => {
   try {
     const usersRef = db.collection("users");
     const leaderboardRef = db.collection("leaderboard");
@@ -25,7 +25,6 @@ exports.updateLeaderboard = functions.pubsub.schedule("every 24 hours").onRun(as
 
     await batch.commit();
     console.log("Leaderboard updated successfully!");
-
     return null;
   } catch (error) {
     console.error("Error updating leaderboard:", error);
