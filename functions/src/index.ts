@@ -31,3 +31,37 @@ exports.updateLeaderboard = functions.pubsub.onSchedule("every 24 hours", async 
     throw new functions.https.HttpsError("internal", "Leaderboard update failed.");
   }
 });
+
+// Cloud Function to send daily push notifications
+exports.sendDailyReminder = functions.pubsub.onSchedule("every 24 hours", async () => {
+  try {
+    const usersRef = db.collection("users");
+    const usersSnapshot = await usersRef.get();
+
+    const messages: any[] = [];
+
+    usersSnapshot.forEach((userDoc) => {
+      const userData = userDoc.data();
+      if (userData.fcmToken) {
+        messages.push({
+          token: userData.fcmToken,
+          notification: {
+            title: "🔥 Keep Your Streak Alive!",
+            body: "Don't forget to complete your quiz today!",
+          },
+        });
+      }
+    });
+
+    if (messages.length > 0) {
+      await admin.messaging().sendEach(messages);
+      console.log("Daily notifications sent successfully!");
+    } else {
+      console.log("No users with FCM tokens found.");
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error sending notifications:", error);
+  }
+});

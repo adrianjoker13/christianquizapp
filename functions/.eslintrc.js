@@ -1,10 +1,10 @@
 module.exports = {
-  root: true,
-  env: {
-    es6: true,
-    node: true,
+  parserOptions: {
+    project: ["tsconfig.json", "functions/tsconfig.json"], // ✅ Include both configs
+    tsconfigRootDir: __dirname,
+    sourceType: "module",
   },
-  extends: [
+extends: [
     "eslint:recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
