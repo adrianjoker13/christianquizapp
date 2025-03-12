@@ -12,6 +12,6 @@
     "noImplicitAny": false,
     "resolveJsonModule": true
   },
-  "include": ["functions/src/**/*.ts"],
+  "include": ["./src/*.ts"],
   "exclude": ["node_modules", "lib"]
 }
