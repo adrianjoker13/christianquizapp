@@ -1,6 +1,6 @@
 // firebase.ts
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, orderBy, query, limit } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, orderBy, query, limit, increment, } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -101,7 +101,7 @@ const getBadgesForXP = (xp: number): string[] => {
 };
 
 // Function to update XP, streak, and badges
-export const updateXPStreakAndBadges = async (xpEarned: number) => {
+export const updateXPStreakAndBadges = async (xpEarned: number, quizzesCompleted: number) => {
   if (!auth.currentUser) return;
 
   const userRef = doc(db, "users", auth.currentUser.uid);
@@ -113,29 +113,116 @@ export const updateXPStreakAndBadges = async (xpEarned: number) => {
     const lastLogin = userData.lastLogin || today;
     let newStreak = userData.streak || 0;
 
+    // 🔥 Update streak logic
     if (lastLogin !== today) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
       if (lastLogin === yesterdayStr) {
-        newStreak += 1;
+        newStreak += 1; // Increase streak
       } else {
-        newStreak = 1;
+        newStreak = 1; // Reset streak
       }
     }
 
+    // 🏆 Update XP
     const newXP = (userData.xp || 0) + xpEarned;
-    const newBadges = getBadgesForXP(newXP);
 
+    // 🔍 Check for new achievements
+    await checkAndUnlockAchievements(auth.currentUser.uid, newXP, newStreak, quizzesCompleted);
+    // Function to update XP, streak, and check for new achievements
+export const updateXPStreakAndBadges = async (xpEarned: number, quizzesCompleted: number) => {
+  if (!auth.currentUser) return;
+
+  const userRef = doc(db, "users", auth.currentUser.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+    const today = new Date().toISOString().split("T")[0];
+    const lastLogin = userData.lastLogin || today;
+    let newStreak = userData.streak || 0;
+
+    // 🔥 Update streak logic
+    if (lastLogin !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      if (lastLogin === yesterdayStr) {
+        newStreak += 1; // Increase streak
+      } else {
+        newStreak = 1; // Reset streak
+      }
+    }
+
+    // 🏆 Update XP
+    const newXP = (userData.xp || 0) + xpEarned;
+
+    // 🔍 Check for new achievements
+    await checkAndUnlockAchievements(auth.currentUser.uid, newXP, newStreak, quizzesCompleted);
+  }
+
+  // Function to update XP, streak, and check for new achievements
+export const updateXPStreakAndBadges = async (xpEarned: number, quizzesCompleted: number) => {
+  if (!auth.currentUser) return;
+
+  const userRef = doc(db, "users", auth.currentUser.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+    const today = new Date().toISOString().split("T")[0];
+    const lastLogin = userData.lastLogin || today;
+    let newStreak = userData.streak || 0;
+
+    // 🔥 Update streak logic
+    if (lastLogin !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      if (lastLogin === yesterdayStr) {
+        newStreak += 1; // Increase streak
+      } else {
+        newStreak = 1; // Reset streak
+      }
+    }
+
+    // 🏆 Update XP
+    const newXP = (userData.xp || 0) + xpEarned;
+
+    // 🔍 Check for new achievements
+    await checkAndUnlockAchievements(auth.currentUser.uid, newXP, newStreak, quizzesCompleted);
+
+    // 📌 Save XP, streak, and last login in Firestore
     await updateDoc(userRef, {
       xp: newXP,
       streak: newStreak,
       lastLogin: today,
-      achievements: newBadges,
     });
   }
 };
+  
+    // 📌 Save XP, streak, and last login in Firestore
+    await updateDoc(userRef, {
+      xp: newXP,
+      streak: newStreak,
+      lastLogin: today,
+    });
+  }
+};
+
+    // 📌 Save XP, streak, and last login in Firestore
+    await updateDoc(userRef, {
+      xp: newXP,
+      streak: newStreak,
+      lastLogin: today,
+    });
+  }
+};
+
 
 // Function to fetch leaderboard data with filtering
 export const fetchLeaderboard = async (
@@ -223,5 +310,76 @@ export const createSocialPost = async (userId: string, type: "xp" | "streak" | "
   }
 };
 
+// 🎖️ Achievement Configurations: Easily edit milestone values & names here
+const ACHIEVEMENTS = {
+  XP: [
+    { threshold: 100, name: "Bronze Achiever", icon: "🥉" },
+    { threshold: 250, name: "Silver Champion", icon: "🥈" },
+    { threshold: 500, name: "Gold Master", icon: "🥇" },
+    { threshold: 1000, name: "Legendary Warrior", icon: "🔥" },
+  ],
+  STREAK: [
+    { threshold: 3, name: "Streak Starter", icon: "⚡" },
+    { threshold: 7, name: "Streak Keeper", icon: "🔥" },
+    { threshold: 14, name: "Unstoppable Streak", icon: "🚀" },
+    { threshold: 30, name: "Streak Legend", icon: "🏆" },
+  ],
+  QUIZZES: [
+    { threshold: 5, name: "Quiz Novice", icon: "📘" },
+    { threshold: 10, name: "Quiz Master", icon: "📚" },
+    { threshold: 25, name: "Ultimate Quiz Champion", icon: "🎓" },
+  ],
+};
+
+//check achievements
+export const checkAndUnlockAchievements = async (userId: string, xp: number, streak: number, quizzesCompleted: number) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return;
+    const userData = userSnap.data() as { achievements: string[] };
+    const unlockedAchievements = userData.achievements || [];
+
+    let newAchievements: string[] = [];
+
+    // 🏆 Check XP Achievements
+    ACHIEVEMENTS.XP.forEach(({ threshold, name, icon }) => {
+      if (xp >= threshold && !unlockedAchievements.includes(name)) {
+        newAchievements.push(`${name} ${icon}`);
+      }
+    });
+
+    // 🔥 Check Streak Achievements
+    ACHIEVEMENTS.STREAK.forEach(({ threshold, name, icon }) => {
+      if (streak >= threshold && !unlockedAchievements.includes(name)) {
+        newAchievements.push(`${name} ${icon}`);
+      }
+    });
+
+    // 📚 Check Quiz Completion Achievements
+    ACHIEVEMENTS.QUIZZES.forEach(({ threshold, name, icon }) => {
+      if (quizzesCompleted >= threshold && !unlockedAchievements.includes(name)) {
+        newAchievements.push(`${name} ${icon}`);
+      }
+    });
+
+    // 🏅 Update Firestore if new achievements are unlocked
+    if (newAchievements.length > 0) {
+      await updateDoc(userRef, {
+        achievements: [...unlockedAchievements, ...newAchievements],
+      });
+
+      // 🚀 Create a social feed post for each new achievement
+      newAchievements.forEach(async (achievement) => {
+        await createSocialPost(userId, "achievement", `Unlocked: ${achievement}! 🎉`);
+      });
+    }
+  } catch (error) {
+    console.error("Error unlocking achievements:", error);
+  }
+};
+
+
 // Export Firebase services
-export { db, auth };
+export { db, auth };  
