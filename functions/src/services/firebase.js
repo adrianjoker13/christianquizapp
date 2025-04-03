@@ -21,13 +21,13 @@ const storage_1 = require("firebase/storage");
 const analytics_1 = require("firebase/analytics");
 const messaging_1 = __importDefault(require("@react-native-firebase/messaging"));
 const firebaseConfig = {
-    apiKey: "AIzaSyAVEEahctBCvnXJZuODUxyR3ej7WpUOmQ0",
-    authDomain: "christian-quiz-app.firebaseapp.com",
-    projectId: "christian-quiz-app",
-    storageBucket: "christian-quiz-app.firebasestorage.app",
-    messagingSenderId: "1032902648953",
-    appId: "1:1032902648953:web:7c42d2f91531b52d64a0a8",
-    measurementId: "G-H4SDZRNQ45"
+    apiKey: 
+    authDomain: 
+    projectId: 
+    storageBucket: 
+    messagingSenderId: 
+    appId: 
+    measurementId: 
 };
 // Initialize Firebase
 const app = (0, app_1.initializeApp)(firebaseConfig);
