@@ -1,40 +1,53 @@
-import React, { useEffect } from "react";
-import { View, Text, Button, FlatList, Animated } from "react-native";
-import { useAppContext } from "../context/AppContext";
+import React from "react";
+import { View, Text, StyleSheet, Button } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-const QuizSummaryScreen = ({ route, navigation }: any) => {
-  const { user } = useAppContext();
-  const { score, totalQuestions, newXP, newBadges } = route.params;
-  const fadeAnim = new Animated.Value(0);
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, []);
+const QuizSummaryScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { score, total } = route.params as { score: number; total: number };
 
   return (
-    <Animated.View style={{ opacity: fadeAnim, padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>Quiz Summary</Text>
-      <Text style={{ fontSize: 18 }}>📋 Score: {score} / {totalQuestions}</Text>
-      <Text style={{ fontSize: 18 }}>⭐ XP Earned: {newXP}</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Quiz Complete!</Text>
+      <Text style={styles.score}>
+        You scored {score} out of {total}
+      </Text>
 
-      {newBadges.length > 0 && (
-        <>
-          <Text style={{ fontSize: 20, marginTop: 10 }}>🏅 New Achievements:</Text>
-          <FlatList
-            data={newBadges}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <Text>✅ {item}</Text>}
-          />
-        </>
-      )}
+      <Text style={styles.message}>🎉 Great job! Your XP and streak have been updated.</Text>
 
-      <Button title="Back to Home" onPress={() => navigation.navigate("Home")} />
-    </Animated.View>
+      <View style={styles.button}>
+        <Button title="Return Home" onPress={() => navigation.navigate("Home" as never)} />
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 24,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  score: {
+    fontSize: 20,
+    marginBottom: 10,
+  },
+  message: {
+    fontSize: 16,
+    marginVertical: 20,
+    textAlign: "center",
+  },
+  button: {
+    marginTop: 20,
+    width: "100%",
+  },
+});
 
 export default QuizSummaryScreen;
